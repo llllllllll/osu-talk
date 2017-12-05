@@ -21,7 +21,7 @@
   \item Introduce problem
   \item Phrase problem as an ML problem
   \item Collect and apply data
-  \item Feature selection
+  \item Select features
   \item Train the model
   \item Improve the model
   \item Tips
@@ -100,6 +100,17 @@
 \end{frame}
 
 \begin{frame}{Problem}
+  \begin{itemize}
+  \item[]<1-> Improve my rank quickly
+  \item[]<2-> Many new songs a week
+  \item[]<3-> Particular playstyle
+  \item[]<4-> Arbitrage opportunity?
+  \end{itemize}
+\end{frame}
+
+\section{Phrasing the Problem}
+
+\begin{frame}{Problem}
   \begin{block}{Predict my score on a beatmap}
     \begin{itemize}
     \item[]<2-> Need to compute accuracy \%
@@ -108,8 +119,6 @@
     \end{itemize}
   \end{block}
 \end{frame}
-
-\section{Phrasing the Problem}
 
 \begin{frame}{Machine Learning Models}
   \only<1>{
@@ -177,7 +186,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{Beatmaps}
+\begin{frame}[fragile, label=raw-data]{Raw Data}
   \begin{block}{Beatmap}
     \begin{verbatim}
 [HitObjects]
@@ -220,7 +229,7 @@
   }
 \end{frame}
 
-\begin{frame}{Understanding our data}
+\begin{frame}[label=od-table]{Understanding our data}
   \begin{block}{Accuracy thresholds (milliseconds)}
     \begin{center}
       \begin{tabular}{r | r r r}
@@ -288,6 +297,8 @@
   \end{enumerate}
 \end{frame}
 
+\againframe{raw-data}
+
 \begin{frame}{Simple Features}
   \begin{enumerate}
   \item[] \texttt{absolute\_x}
@@ -300,7 +311,7 @@
   \includegraphics[width=1.00\textwidth]{images/angle.png}
 \end{frame}
 
-\begin{frame}{Window-Normalization}
+\begin{frame}{Windows}
   \only<1>{
     \begin{center}
       \begin{tabular}{r r r}
@@ -312,11 +323,14 @@
         00:38.291 & 229 & 171 \\
         00:38.424 & 274 & 358 \\
         00:38.688 & 149 & 221 \\
-        00:38.952 & 330 & 186
+        00:38.952 & 330 & 186 \\
+        00:39.217 & 233 & 127 \\
+        00:39.481 & 233 & 127 \\
+        00:39.613 & 198 & 303
       \end{tabular}
     \end{center}
   }
-
+  
   \only<2>{
     \begin{center}
       \begin{tabular}{r r r}
@@ -326,31 +340,143 @@
         00:37.763 & 447 & 205 \\
         00:38.027 & 217 & 299 \\
         00:38.291 & 229 & 171 \\
-        \rowcolor{blue!25} 00:38.424 & 274 & 358 \\
-        00:38.688 & 149 & 221 \\
-        00:38.952 & 330 & 186
+        00:38.424 & 274 & 358 \\
+        \rowcolor{blue!25} 00:38.688 & 149 & 221 \\
+        00:38.952 & 330 & 186 \\
+        00:39.217 & 233 & 127 \\
+        00:39.481 & 233 & 127 \\
+        00:39.613 & 198 & 303
       \end{tabular}
     \end{center}
   }
 
   \only<3>{
     \begin{center}
+      \begin{tabular}{r r r}
+        time & x & y \\
+        \hline
+        00:37.366 & 372 & 94 \\
+        \rowcolor{cyan!25} 00:37.763 & 447 & 205 \\
+        \rowcolor{cyan!25} 00:38.027 & 217 & 299 \\
+        \rowcolor{cyan!25} 00:38.291 & 229 & 171 \\
+        \rowcolor{cyan!25} 00:38.424 & 274 & 358 \\
+        \rowcolor{blue!25} 00:38.688 & 149 & 221 \\
+        \rowcolor{cyan!25} 00:38.952 & 330 & 186 \\
+        \rowcolor{cyan!25} 00:39.217 & 233 & 127 \\
+        00:39.481 & 233 & 127 \\
+        00:39.613 & 198 & 303
+      \end{tabular}
+    \end{center}
+  }
+
+  \only<4>{
+    \begin{center}
       \begin{tabular}{r r r | r r}
         time & x & y & relative x & relative y\\
         \hline
-        00:37.366 & 372 & 94 & 98 & -264 \\
-        00:37.763 & 447 & 205 & 173 & -153 \\
-        00:38.027 & 217 & 299 & -57 & -59 \\
-        00:38.291 & 229 & 171 & -45 & -187 \\
-        \rowcolor{blue!25} 00:38.424 & 274 & 358 & 0 & 0 \\
-        00:38.688 & 149 & 221 & -125 & -137 \\
-        00:38.952 & 330 & 186 & 56 & -172
+        00:37.366 & 372 & 94 & - & - \\
+        \rowcolor{cyan!25} 00:37.763 & 447 & 205 & 298 & -16 \\
+        \rowcolor{cyan!25} 00:38.027 & 217 & 299 & 68 & 78 \\
+        \rowcolor{cyan!25} 00:38.291 & 229 & 171 & 80 & -50 \\
+        \rowcolor{cyan!25} 00:38.424 & 274 & 358 & 125 & 137 \\
+        \rowcolor{blue!25} 00:38.688 & 149 & 221 & 0 & 0 \\
+        \rowcolor{cyan!25} 00:38.952 & 330 & 186 & 181 & -35 \\
+        \rowcolor{cyan!25} 00:39.217 & 233 & 127 & 84 & -94 \\
+        00:39.481 & 233 & 127 & - & - \\
+        00:39.613 & 198 & 303 & - & -
+      \end{tabular}
+    \end{center}
+  }
+
+  \only<5>{
+    \begin{center}
+      \begin{tabular}{r r r | r r}
+        time & x & y & relative x & relative y\\
+        \hline
+        00:37.366 & 372 & 94 & - & - \\
+        00:37.763 & 447 & 205 & - & - \\
+        \rowcolor{cyan!25} 00:38.027 & 217 & 299 & -113 & 113 \\
+        \rowcolor{cyan!25} 00:38.291 & 229 & 171 & -101 & -15 \\
+        \rowcolor{cyan!25} 00:38.424 & 274 & 358 & -56 & 172 \\
+        \rowcolor{cyan!25} 00:38.688 & 149 & 221 & -181 & 35 \\
+        \rowcolor{blue!25} 00:38.952 & 330 & 186 & 0 & 0 \\
+        \rowcolor{cyan!25} 00:39.217 & 233 & 127 & -97 & -59 \\
+        \rowcolor{cyan!25} 00:39.481 & 233 & 127 & -97 & -59 \\
+        00:39.613 & 198 & 303 & - & -
+      \end{tabular}
+    \end{center}
+  }
+
+  \only<6>{
+    \begin{center}
+      \begin{tabular}{r r r | r r}
+        time & x & y & relative x & relative y\\
+        \hline
+        00:37.366 & 372 & 94 & - & - \\
+        00:37.763 & 447 & 205 & - & - \\
+        00:38.027 & 217 & 299 & - & - \\
+        \rowcolor{cyan!25} 00:38.291 & 229 & 171 & -4 & 44 \\
+        \rowcolor{cyan!25} 00:38.424 & 274 & 358 & 41 & 231 \\
+        \rowcolor{cyan!25} 00:38.688 & 149 & 221 & -84 & 94 \\
+        \rowcolor{cyan!25} 00:38.952 & 330 & 186 & 97 & 59 \\
+        \rowcolor{blue!25} 00:39.217 & 233 & 127 & 0 & 0 \\
+        \rowcolor{cyan!25} 00:39.481 & 233 & 127 & 0 & 0 \\
+        \rowcolor{cyan!25} 00:39.613 & 198 & 303 & -35 & 176
       \end{tabular}
     \end{center}
   }
 \end{frame}
 
+\begin{frame}{Osu! Features}
+  \begin{columns}[T]
+    \column{0.35\textwidth}
+    \begin{itemize}
+    \item \texttt{absolute\_x}
+    \item \texttt{absolute\_y}
+    \item \texttt{absolute\_time}
+    \item \texttt{relative\_x}
+    \item \texttt{relative\_y}
+    \item \texttt{relative\_time}
+    \end{itemize}
+
+    \column{0.5\textwidth}
+
+    \begin{itemize}
+    \item \texttt{is\_slider\_tick}
+    \item \texttt{approach\_rate}
+    \item \texttt{distance\_from\_previous}
+    \item \texttt{distance\_to\_next}
+    \item \texttt{pitch}
+    \item \texttt{roll}
+    \item \texttt{yaw}
+    \end{itemize}
+  \end{columns}
+\end{frame}
+
 \section{Training}
+
+\begin{frame}{Input Shapes}
+  \begin{block}{Feature array shape}
+    \vspace{\fill}
+    \begin{tabular}{r r r r r}
+      $$($$ &
+        \onslide<4->{number of windows}, &
+        \onslide<3->{window length}, &
+        \onslide<2->{number of features}, &
+        $$)$$ \\
+    \end{tabular}
+  \end{block}
+
+  \onslide<5->{
+    \begin{block}{Label array shape}
+      \vspace{\fill}
+      \begin{tabular}{r r r}
+        $$($$ & number of windows, & $$)$$ \\
+        $$($$ & number of windows, & $$)$$ \\
+      \end{tabular}
+    \end{block}
+  }
+\end{frame}
 
 \begin{frame}[fragile]{Keras}
   \begin{itemize}
@@ -476,26 +602,7 @@ features:
   }
 \end{frame}
 
-\begin{frame}{Discretizing scores}
-  \begin{block}{Accuracy thresholds (milliseconds)}
-    \begin{center}
-      \begin{tabular}{r | r r r}
-        OD & 300 & 100 & 50 \\
-        \hline
-        1 & 73.5 & 131.5 & 189.5 \\
-        2 & 67.5 & 123.5 & 179.5 \\
-        3 & 61.5 & 115.5 & 169.5 \\
-        4 & 55.5 & 107.5 & 159.5 \\
-        5 & 49.5 & 99.5 & 149.5 \\
-        6 & 43.5 & 91.5 & 139.5 \\
-        7 & 37.5 & 83.5 & 129.5 \\
-        8 & 31.5 & 75.5 & 119.5 \\
-        9 & 25.5 & 67.5 & 109.5 \\
-        10 & 19.5 & 59.5 & 99.5
-      \end{tabular}
-    \end{center}
-  \end{block}
-\end{frame}
+\againframe{od-table}
 
 \begin{frame}{Data (again)}
   \only<1>{
@@ -508,7 +615,7 @@ features:
 \end{frame}
 
 \begin{frame}{Fit a distribution}
-  \texttt{lain/lstm.py:658}
+  \texttt{lain/lstm.py:605}
 \end{frame}
 
 \begin{frame}{Sample Weights}
@@ -580,8 +687,9 @@ model.fit(
 
   \begin{itemize}
   \item[]<2-> feature extraction
-  \item[]<3-> label extraction
-  \item[]<4-> managing keras
+  \item[]<3-> feature scaling
+  \item[]<4-> label extraction
+  \item[]<5-> managing keras
   \end{itemize}
 \end{frame}
 
@@ -604,6 +712,10 @@ model.fit(
 
 \begin{frame}{Thank You}
   Questions?
+
+  \begin{center}
+    \includegraphics[width=0.50\textwidth]{images/osu-profile.png}
+  \end{center}
 
   \begin{block}{\texttt{github.com/llllllllll} (10 lowercase L's)}
     \begin{itemize}
