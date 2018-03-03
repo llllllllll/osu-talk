@@ -11,10 +11,16 @@
 
 \date{\today}
 \author{Joe Jevnik}
-\institute{PyData NYC 2017}
+\institute{QuanTech NYC}
 
 \begin{document}
 \maketitle
+
+\begin{frame}
+  \begin{center}
+    \includegraphics[width=1.00\textwidth]{images/disclaimer.png}
+  \end{center}
+\end{frame}
 
 \begin{frame}{Outline}
   \begin{enumerate}
@@ -103,8 +109,9 @@
   \begin{itemize}
   \item[]<1-> Improve my rank quickly
   \item[]<2-> Many new songs a week
-  \item[]<3-> Particular playstyle
-  \item[]<4-> Arbitrage opportunity?
+  \item[]<3-> Songs award a variable amount of points
+  \item[]<4-> Particular playstyle
+  \item[]<5-> Arbitrage opportunity?
   \end{itemize}
 \end{frame}
 
@@ -632,12 +639,21 @@ features:
   \begin{minted}{python}
 model.fit(
     ...
-    {
+    sample_weight={
         'aim_error:': aim_error_weights,
         'accuracy_error': accuracy_error_weights,
     },
 )
   \end{minted}
+\end{frame}
+
+\begin{frame}{Pessimism}
+  \begin{itemize}
+  \item[]<1-> Model thinks I am too good
+  \item[]<2-> Bias in data collection
+  \item[]<3-> Raise errors to a pre-decided power (1.1)
+  \item[]<4-> This is made up nonsense
+  \end{itemize}
 \end{frame}
 
 \begin{frame}{Example Output}
@@ -660,14 +676,15 @@ model.fit(
 
 \begin{frame}{Example Output (cont.)}
   \begin{center}
-    \begin{tabular}{r | r | r}
-      Prediction & Actual & Stars \\
+    \begin{tabular}{l | r | r | r}
+      Song & Stars & Predicted & Actual \\
       \hline
-      99.85\% & 99.13\% & 5.34 \\
-      99.85\% & 99.08\% & 5.34 \\
-      99.85\% & 98.51\% & 5.34 \\
-      95.95\% & 96.57\% & 6.03 \\
-      98.30\% & 97.09\% & 6.24
+      CHiCO with HoneyWorks - Wolf & 5.34 & 99.85\% & 99.13\% \\
+      CHiCO with HoneyWorks - Wolf & 5.34 & 99.85\% & 99.08\% \\
+      CHiCO with HoneyWorks - Wolf & 5.34 & 99.85\% & 98.51\% \\
+      \hline
+      mimimemeMIMI - Sayonara Usotsuki & 5.70 & 98.38\% & 98.68\% \\
+      Kanon Wakeshima - Tsukinami & 5.82 & 99.12\% & 99.87\% \\
     \end{tabular}
   \end{center}
 \end{frame}
